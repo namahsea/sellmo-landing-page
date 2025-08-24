@@ -223,12 +223,33 @@ function initTypoEffects() {
     const typos = document.querySelectorAll('.typo');
     
     typos.forEach(typo => {
+        // Add a custom attribute to track the state
+        typo.setAttribute('data-gradient', 'false');
+        
         typo.addEventListener('click', function() {
             // Add click animation
             this.style.transform = 'scale(1.1) rotate(2deg)';
-            this.style.color = '#8b5cf6';
             
-            // Reset after animation
+            // Toggle between dark and gradient using custom attribute
+            if (this.getAttribute('data-gradient') === 'true') {
+                // Currently gradient, switch back to dark
+                this.style.background = 'none';
+                this.style.color = '#22223b';
+                this.style.webkitBackgroundClip = 'unset';
+                this.style.webkitTextFillColor = 'unset';
+                this.style.backgroundClip = 'unset';
+                this.setAttribute('data-gradient', 'false');
+            } else {
+                // Currently dark, switch to gradient
+                this.style.background = 'linear-gradient(135deg, #6366f1, #06b6d4, #8b5cf6)';
+                this.style.webkitBackgroundClip = 'text';
+                this.style.webkitTextFillColor = 'transparent';
+                this.style.backgroundClip = 'text';
+                this.style.color = 'transparent';
+                this.setAttribute('data-gradient', 'true');
+            }
+            
+            // Reset transform after animation
             setTimeout(() => {
                 this.style.transform = 'scale(1) rotate(0deg)';
             }, 200);
@@ -434,8 +455,8 @@ document.addEventListener('mousedown', function() {
     document.body.classList.remove('keyboard-navigation');
 });
 
-// Add focus styles for accessibility
-document.querySelectorAll('button, input, .typo').forEach(element => {
+// Add focus styles for accessibility (excluding .typo elements)
+document.querySelectorAll('button, input').forEach(element => {
     element.addEventListener('focus', function() {
         this.style.outline = '2px solid #8b5cf6';
         this.style.outlineOffset = '2px';

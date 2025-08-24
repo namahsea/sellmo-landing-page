@@ -97,27 +97,14 @@ h1, h2, h3, h4 {
     position: relative;
     cursor: pointer;
     transition: all 0.3s ease;
+    color: #22223b;
 }
 
-.typo:hover {
-    color: #8b5cf6;
-    transform: scale(1.05);
-}
 
-.typo::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: #8b5cf6;
-    transition: width 0.3s ease;
-}
 
-.typo:hover::after {
-    width: 100%;
-}
+
+
+
 
 /* Chat Bubbles */
 .chat-bubbles {
@@ -320,10 +307,7 @@ section {
     overflow: hidden;
 }
 
-.comparison-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
-}
+
 
 .comparison-card h3 {
     font-size: 1.25rem;
@@ -359,9 +343,7 @@ section {
     color: white;
 }
 
-.comparison-card:hover .icon {
-    transform: scale(1.1);
-}
+
 
 .new-way-content {
     margin-bottom: 2rem;
@@ -395,15 +377,7 @@ section {
     font-size: 0.95rem;
 }
 
-.feature-item:hover {
-    transform: translateX(4px);
-    transition: transform 0.2s ease;
-}
 
-.feature-item:hover .feature-icon {
-    transform: scale(1.1);
-    transition: transform 0.2s ease;
-}
 
 /* Product Introduction */
 .product-intro {
@@ -571,10 +545,7 @@ section {
     transition: all 0.3s ease;
 }
 
-.feature-bullet:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
-}
+
 
 .feature-bullet .feature-icon {
     font-size: 1.5rem;
@@ -622,10 +593,7 @@ section {
     transition: all 0.3s ease;
 }
 
-.style-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
-}
+
 
 .card-header {
     background: #f8f9fa;

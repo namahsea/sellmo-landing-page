@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize all interactive features
     initAnimations();
     initFormHandling();
+    initHeaderCTA();
     initTypoEffects();
     initScrollAnimations();
     initFloatingElements();
@@ -172,6 +173,26 @@ function initFormHandling() {
             // Reset form
             this.reset();
             this.querySelector('input[type="checkbox"]').checked = true;
+        });
+    }
+}
+
+// Initialize header CTA navigation
+function initHeaderCTA() {
+    const headerCTA = document.querySelector('.nav-cta');
+    
+    if (headerCTA) {
+        headerCTA.addEventListener('click', function() {
+            // Find the beta signup section
+            const betaSection = document.querySelector('.beta-signup');
+            
+            if (betaSection) {
+                // Smooth scroll to the beta signup section
+                betaSection.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
         });
     }
 }

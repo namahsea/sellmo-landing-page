@@ -5,6 +5,50 @@
     box-sizing: border-box;
 }
 
+/* Header Navigation */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(229, 231, 235, 0.3);
+    z-index: 1000;
+    padding: 1rem 0;
+}
+
+.nav-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #22223b;
+    cursor: pointer;
+}
+
+.nav-cta {
+    background: #171717;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.nav-cta:hover {
+    background: #000000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
 /* Scroll Animation Styles */
 .scroll-animate {
     opacity: 0;
@@ -49,7 +93,7 @@ body {
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 0 0.5rem;
 }
 
 /* Typography */

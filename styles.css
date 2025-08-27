@@ -246,6 +246,7 @@ h1, h2, h3, h4 {
     box-sizing: border-box;
     padding-bottom: 1rem;
     min-width: 280px;
+    margin: 0;
 }
 
 .chat-input:focus-within {

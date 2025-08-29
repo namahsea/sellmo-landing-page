@@ -10,7 +10,34 @@ document.addEventListener('DOMContentLoaded', function() {
     initFloatingElements();
     initDelayedChat();
     initChatEmailSubmission();
+    
+    // Add test button for modal debugging (commented out for production)
+    // addTestButton();
 });
+
+// Add test button for debugging modal (commented out for production)
+/*
+function addTestButton() {
+    const testButton = document.createElement('button');
+    testButton.textContent = 'Test Modal';
+    testButton.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 10000;
+        padding: 10px 20px;
+        background: #6366f1;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    `;
+    testButton.onclick = function() {
+        showSuccessMessage('test@example.com', true);
+    };
+    document.body.appendChild(testButton);
+}
+*/
 
 // Initialize delayed chat animation
 function initDelayedChat() {
@@ -162,17 +189,18 @@ function initFormHandling() {
     
     if (signupForm) {
         signupForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
+            // Don't prevent default - let Netlify handle the submission
             const email = this.querySelector('input[type="email"]').value;
             const newsletter = this.querySelector('input[type="checkbox"]').checked;
             
-            // Simulate form submission
-            showSuccessMessage(email, newsletter);
-            
-            // Reset form
-            this.reset();
-            this.querySelector('input[type="checkbox"]').checked = true;
+            // Show success message after a brief delay to allow Netlify submission
+            setTimeout(() => {
+                showSuccessMessage(email, newsletter);
+                
+                // Reset form
+                this.reset();
+                this.querySelector('input[type="checkbox"]').checked = true;
+            }, 100);
         });
     }
 }
@@ -199,44 +227,183 @@ function initHeaderCTA() {
 
 // Show success message after form submission
 function showSuccessMessage(email, newsletter) {
-    // Create success message element
-    const successDiv = document.createElement('div');
-    successDiv.className = 'success-message';
-    successDiv.innerHTML = `
-        <div class="success-content">
-            <div class="success-icon">✨</div>
-            <h3>Welcome to the future!</h3>
-            <p>Thanks for joining our beta, ${email.split('@')[0]}!</p>
-            ${newsletter ? '<p>You\'ll receive updates about our launch.</p>' : ''}
+    console.log('showSuccessMessage called'); // Debug log
+    
+    // Create modal overlay
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'modal-overlay';
+    
+    // Create modal content
+    const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content';
+    modalContent.innerHTML = `
+        <div class="modal-header">
+            <button class="modal-close" onclick="closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-icon">🎉</div>
+            <h2 class="modal-title">Welcome aboard!</h2>
+            <p class="modal-text">You've successfully signed up for early access. As part of our beta community, you'll get a first look at upcoming features and help shape the future of our marketplace.</p>
         </div>
     `;
     
-    // Add styles
-    successDiv.style.cssText = `
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: white;
-        padding: 2rem;
-        border-radius: 1rem;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-        z-index: 1000;
-        text-align: center;
-        max-width: 400px;
-        animation: slideIn 0.3s ease;
-    `;
+    // Add modal to overlay
+    modalOverlay.appendChild(modalContent);
     
     // Add to page
-    document.body.appendChild(successDiv);
+    document.body.appendChild(modalOverlay);
     
-    // Remove after 4 seconds
+    console.log('Modal added to DOM'); // Debug log
+    
+    // Add modal styles
+    addModalStyles();
+    
+    // Show modal with animation
     setTimeout(() => {
-        successDiv.style.animation = 'slideOut 0.3s ease';
+        modalOverlay.classList.add('show');
+        console.log('Show class added'); // Debug log
+    }, 50);
+}
+
+// Close modal function - make it globally accessible
+window.closeModal = function() {
+    const modalOverlay = document.querySelector('.modal-overlay');
+    if (modalOverlay) {
+        modalOverlay.classList.remove('show');
         setTimeout(() => {
-            document.body.removeChild(successDiv);
+            document.body.removeChild(modalOverlay);
         }, 300);
-    }, 4000);
+    }
+}
+
+// Add modal styles
+function addModalStyles() {
+    if (document.getElementById('modal-styles')) return;
+    
+    const style = document.createElement('style');
+    style.id = 'modal-styles';
+    style.textContent = `
+        .modal-overlay {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: rgba(0, 0, 0, 0.5) !important;
+            backdrop-filter: blur(8px) !important;
+            z-index: 9999 !important;
+            display: flex !important;
+            align-items: flex-start !important;
+            justify-content: center !important;
+            padding-top: 25vh !important;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal-overlay.show {
+            opacity: 1 !important;
+        }
+        
+        .modal-content {
+            background: white !important;
+            border-radius: 1.5rem !important;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25) !important;
+            max-width: 500px !important;
+            width: 90% !important;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+            position: relative !important;
+        }
+        
+        .modal-overlay.show .modal-content {
+            transform: translateY(0) !important;
+        }
+        
+        .modal-header {
+            position: relative !important;
+            padding: 1.5rem 1.5rem 0 1.5rem !important;
+        }
+        
+        .modal-close {
+            position: absolute !important;
+            top: 0 !important;
+            right: 0 !important;
+            background: #f3f4f6 !important;
+            border: none !important;
+            width: 32px !important;
+            height: 32px !important;
+            border-radius: 50% !important;
+            font-size: 1.25rem !important;
+            font-weight: bold !important;
+            color: #6b7280 !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        
+        .modal-close:hover {
+            background: #e5e7eb !important;
+            color: #374151 !important;
+            transform: scale(1.1) !important;
+        }
+        
+        .modal-body {
+            padding: 0 1.5rem 2rem 1.5rem !important;
+            text-align: center !important;
+        }
+        
+        .modal-icon {
+            font-size: 3rem !important;
+            margin-bottom: 1.5rem !important;
+            animation: bounce 0.6s ease;
+        }
+        
+        .modal-title {
+            font-size: 1.75rem !important;
+            font-weight: 700 !important;
+            color: #1f2937 !important;
+            margin-bottom: 1rem !important;
+            line-height: 1.3 !important;
+        }
+        
+        .modal-text {
+            font-size: 1.1rem !important;
+            color: #6b7280 !important;
+            line-height: 1.6 !important;
+            margin: 0 !important;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .modal-content {
+                max-width: 90% !important;
+                margin: 0 1rem !important;
+            }
+            
+            .modal-title {
+                font-size: 1.5rem !important;
+            }
+            
+            .modal-text {
+                font-size: 1rem !important;
+            }
+        }
+    `;
+    
+    document.head.appendChild(style);
 }
 
 // Initialize typo effects
@@ -479,8 +646,8 @@ document.addEventListener('mousedown', function() {
 // Add focus styles for accessibility (excluding .typo elements)
 document.querySelectorAll('button, input').forEach(element => {
     element.addEventListener('focus', function() {
-        this.style.outline = '2px solid #8b5cf6';
-        this.style.outlineOffset = '2px';
+        // Remove purple outline - keep clean focus state
+        this.style.outline = 'none';
     });
     
     element.addEventListener('blur', function() {
@@ -516,6 +683,23 @@ function initChatEmailSubmission() {
         chatSubmit.addEventListener('click', function() {
             const email = emailInput.value.trim();
             if (email && isValidEmail(email)) {
+                // Submit the form to Netlify
+                const chatForm = document.querySelector('form[name="chat-signup"]');
+                if (chatForm) {
+                    // Create a hidden input for the email if it doesn't exist
+                    let hiddenInput = chatForm.querySelector('input[type="hidden"]');
+                    if (!hiddenInput) {
+                        hiddenInput = document.createElement('input');
+                        hiddenInput.type = 'hidden';
+                        hiddenInput.name = 'email';
+                        chatForm.appendChild(hiddenInput);
+                    }
+                    hiddenInput.value = email;
+                    
+                    // Submit the form
+                    chatForm.submit();
+                }
+                
                 // Show success message
                 showChatSuccess();
                 emailInput.value = '';
@@ -544,6 +728,10 @@ function isValidEmail(email) {
 
 // Show success message in chat
 function showChatSuccess() {
+    // Show the same modal for chat submissions
+    showSuccessMessage('', false);
+    
+    // Also update the input placeholder briefly
     const emailInput = document.querySelector('.email-input');
     if (emailInput) {
         emailInput.placeholder = 'Thanks! We\'ll be in touch soon! 🎉';

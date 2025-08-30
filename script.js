@@ -244,29 +244,8 @@ function initFormHandling() {
     const signupForm = document.getElementById('signupForm');
     
     if (signupForm) {
-        signupForm.addEventListener('submit', function(e) {
-            // Don't prevent default - let Netlify handle submission naturally
-            
-            const email = this.querySelector('input[type="email"]').value.trim();
-            
-            // Check if empty first (for "Fill out this field" tooltip)
-            if (!email) {
-                // Let the browser show the default "Fill out this field" tooltip
-                this.querySelector('input[type="email"]').reportValidity();
-                e.preventDefault(); // Only prevent if empty
-                return;
-            }
-            
-            // Check if email is valid
-            if (!isValidEmail(email)) {
-                showFormError(this.querySelector('input[type="email"]'), 'Please enter a valid email address');
-                e.preventDefault(); // Only prevent if invalid
-                return;
-            }
-            
-            // If valid, let Netlify handle the submission naturally
-            // No custom submission, no custom modal - just let it work
-        });
+        // Remove JavaScript form control - let form submit naturally to Netlify
+        // Validation will still work through HTML required attribute and our custom error styling
         
         // Add real-time validation feedback
         const emailInput = signupForm.querySelector('input[type="email"]');
@@ -284,9 +263,6 @@ function initFormHandling() {
                 if (existingError) {
                     existingError.remove();
                 }
-                
-                // Clear browser's default validation state
-                this.setCustomValidity('');
             });
         }
     }
@@ -806,48 +782,10 @@ function initChatEmailSubmission() {
     const emailInput = document.querySelector('.email-input');
     
     if (chatSubmit && emailInput) {
-        chatSubmit.addEventListener('click', function(e) {
-            e.preventDefault(); // Prevent default to handle validation first
-            
-            const email = emailInput.value.trim();
-            
-            // Check if empty first (for "Fill out this field" tooltip)
-            if (!email) {
-                // Let the browser show the default "Fill out this field" tooltip
-                emailInput.reportValidity();
-                return;
-            }
-            
-            // Check if email is valid
-            if (isValidEmail(email)) {
-                // Submit the form to Netlify naturally
-                const chatForm = document.querySelector('form[name="chat-signup"]');
-                if (chatForm) {
-                    // Set the email value in the form
-                    let hiddenInput = chatForm.querySelector('input[type="hidden"]');
-                    if (!hiddenInput) {
-                        hiddenInput = document.createElement('input');
-                        hiddenInput.type = 'hidden';
-                        hiddenInput.name = 'email';
-                        chatForm.appendChild(hiddenInput);
-                    }
-                    hiddenInput.value = email;
-                    
-                    // Let Netlify handle the submission naturally
-                    chatForm.submit();
-                }
-            } else {
-                // Show comprehensive error state with message
-                showFormError(emailInput, 'Please enter a valid email address');
-            }
-        });
+        // Remove JavaScript form control - let form submit naturally to Netlify
+        // Validation will still work through HTML required attribute and our custom error styling
         
-        // Handle Enter key
-        emailInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                chatSubmit.click();
-            }
-        });
+        // Enter key will now work naturally with the form
         
         // Add real-time validation feedback for chat input
         emailInput.addEventListener('input', function() {
@@ -863,9 +801,6 @@ function initChatEmailSubmission() {
             if (existingError) {
                 existingError.remove();
             }
-            
-            // Clear browser's default validation state
-            this.setCustomValidity('');
             
             // Stop typewriter animation if user starts typing
             stopTypewriterAnimation();

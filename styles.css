@@ -156,10 +156,9 @@ h1, h2, h3, h4 {
     flex-direction: column;
     align-items: center;
     gap: 1.5rem;
-    max-width: 600px;
+    max-width: 550px;
     margin: 0 auto;
     margin-top: -2rem;
-    padding: 1rem;
     padding-bottom: 0.1rem;
     justify-content: flex-end;
     min-height: 50px;
@@ -731,7 +730,7 @@ section {
     .chat-bubbles {
         padding: 0.5rem !important;
         gap: 1rem !important;
-        margin-top: -2rem !important;
+        margin-top: -0.5rem !important; /* Reduced from -2rem to prevent overlap */
     }
     
     .chat-message {
@@ -757,7 +756,7 @@ section {
     }
     
     .chat-input-container {
-        margin-top: -1rem !important;
+        margin-top: 0.5rem !important; /* Changed from -1rem to positive margin to prevent overlap */
         margin-bottom: 1.5rem !important;
     }
     
@@ -860,7 +859,7 @@ section {
     .chat-bubbles {
         padding: 0.25rem !important;
         gap: 0.75rem !important;
-        margin-top: -3rem !important;
+        margin-top: -1rem !important; /* Reduced from -3rem to prevent overlap */
     }
     
     .chat-message {
@@ -886,7 +885,7 @@ section {
     }
     
     .chat-input-container {
-        margin-top: -2rem !important;
+        margin-top: 0.5rem !important; /* Changed from -2rem to positive margin to prevent overlap */
         margin-bottom: 1rem !important;
     }
     
@@ -977,6 +976,14 @@ section {
     .chat-message {
         max-width: 200px;
         font-size: 0.8rem;
+    }
+    
+    .chat-bubbles {
+        margin-top: 0 !important; /* Ensure no negative margin on very small screens */
+    }
+    
+    .chat-input-container {
+        margin-top: 1rem !important; /* Ensure proper spacing on very small screens */
     }
     
     .feature-bullet {

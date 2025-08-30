@@ -262,33 +262,27 @@ function initFormHandling() {
     
     if (signupForm) {
         signupForm.addEventListener('submit', function(e) {
-            e.preventDefault(); // Prevent default to avoid Netlify's modal
+            // Don't prevent default - let Netlify handle submission naturally
             
             const email = this.querySelector('input[type="email"]').value.trim();
-            const newsletter = this.querySelector('input[type="checkbox"]').checked;
             
             // Check if empty first (for "Fill out this field" tooltip)
             if (!email) {
                 // Let the browser show the default "Fill out this field" tooltip
                 this.querySelector('input[type="email"]').reportValidity();
+                e.preventDefault(); // Only prevent if empty
                 return;
             }
             
             // Check if email is valid
             if (!isValidEmail(email)) {
                 showFormError(this.querySelector('input[type="email"]'), 'Please enter a valid email address');
-                return; // Don't submit invalid form
+                e.preventDefault(); // Only prevent if invalid
+                return;
             }
             
-            // Submit form data to Netlify manually
-            submitToNetlify(this, email, newsletter);
-            
-            // Show our custom modal immediately
-            showSuccessMessage(email, newsletter);
-            
-            // Reset form
-            this.reset();
-            this.querySelector('input[type="checkbox"]').checked = true;
+            // If valid, let Netlify handle the submission naturally
+            // No custom submission, no custom modal - just let it work
         });
         
         // Add real-time validation feedback
@@ -352,51 +346,7 @@ function showFormError(inputElement, message) {
     }, 3000);
 }
 
-// Function to submit form data to Netlify without showing their modal
-function submitToNetlify(form, email, newsletter) {
-    // Create a hidden form and submit it in the background
-    const hiddenForm = document.createElement('form');
-    hiddenForm.method = 'POST';
-    hiddenForm.action = form.action || window.location.href;
-    hiddenForm.style.display = 'none';
-    
-    // Add form data
-    const emailInput = document.createElement('input');
-    emailInput.type = 'hidden';
-    emailInput.name = 'email';
-    emailInput.value = email;
-    hiddenForm.appendChild(emailInput);
-    
-    const newsletterInput = document.createElement('input');
-    newsletterInput.type = 'hidden';
-    newsletterInput.name = 'updates';
-    newsletterInput.value = newsletter ? 'on' : 'off';
-    hiddenForm.appendChild(newsletterInput);
-    
-    const formNameInput = document.createElement('input');
-    formNameInput.type = 'hidden';
-    formNameInput.name = 'form-name';
-    formNameInput.value = 'beta-signup';
-    hiddenForm.appendChild(formNameInput);
-    
-    // Submit in background
-    document.body.appendChild(hiddenForm);
-    hiddenForm.submit();
-    document.body.removeChild(hiddenForm);
-}
-
-// Function to submit chat form to Netlify without showing their modal
-function submitChatToNetlify(form, email) {
-    // Create a hidden form and submit it in the background
-    const hiddenForm = document.createElement('input');
-    hiddenForm.type = 'hidden';
-    hiddenForm.name = 'email';
-    hiddenForm.value = email;
-    form.appendChild(hiddenForm);
-    
-    // Submit in background
-    form.submit();
-}
+// Custom submission functions removed - letting Netlify handle everything naturally
 
 // Initialize header CTA navigation
 function initHeaderCTA() {
@@ -874,7 +824,7 @@ function initChatEmailSubmission() {
     
     if (chatSubmit && emailInput) {
         chatSubmit.addEventListener('click', function(e) {
-            e.preventDefault(); // Prevent any default form behavior
+            e.preventDefault(); // Prevent default to handle validation first
             
             const email = emailInput.value.trim();
             
@@ -887,10 +837,10 @@ function initChatEmailSubmission() {
             
             // Check if email is valid
             if (isValidEmail(email)) {
-                // Submit the form to Netlify in background
+                // Submit the form to Netlify naturally
                 const chatForm = document.querySelector('form[name="chat-signup"]');
                 if (chatForm) {
-                    // Create a hidden input for the email if it doesn't exist
+                    // Set the email value in the form
                     let hiddenInput = chatForm.querySelector('input[type="hidden"]');
                     if (!hiddenInput) {
                         hiddenInput = document.createElement('input');
@@ -900,13 +850,9 @@ function initChatEmailSubmission() {
                     }
                     hiddenInput.value = email;
                     
-                    // Submit the form in background
-                    submitChatToNetlify(chatForm, email);
+                    // Let Netlify handle the submission naturally
+                    chatForm.submit();
                 }
-                
-                // Show success message
-                showChatSuccess();
-                emailInput.value = '';
             } else {
                 // Show comprehensive error state with message
                 showFormError(emailInput, 'Please enter a valid email address');
@@ -949,18 +895,15 @@ function isValidEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-// Show success message in chat
+// Chat success function simplified - no custom modal needed
 function showChatSuccess() {
-    // Show the same modal for chat submissions
-    showSuccessMessage('', false);
-    
-    // Also update the input placeholder briefly
+    // Update the input placeholder briefly
     const emailInput = document.querySelector('.email-input');
     if (emailInput) {
         emailInput.placeholder = 'Thanks! We\'ll be in touch soon! 🎉';
         emailInput.style.borderColor = '#10b981';
         setTimeout(() => {
-            emailInput.placeholder = 'Enter your email address to sell';
+            emailInput.placeholder = 'Enter your email address to join beta now..';
             emailInput.style.borderColor = '#e5e7eb';
         }, 3000);
     }

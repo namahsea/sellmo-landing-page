@@ -42,6 +42,8 @@ function addTestButton() {
 // Initialize delayed chat animation
 function initDelayedChat() {
     startChatCycle();
+    // Start typewriter animation after chat completes
+    startTypewriterAnimation();
 }
 
 // Start a complete chat cycle
@@ -71,6 +73,77 @@ function startChatCycle() {
             showChatInput();
         }, 500);
     }, 5000);
+}
+
+// Start typewriter animation for input placeholder
+function startTypewriterAnimation() {
+    const emailInput = document.querySelector('.email-input');
+    if (!emailInput) return;
+    
+    // Wait for chat to complete (5.5 seconds total) then start typewriter
+    setTimeout(() => {
+        startTypewriterLoop(emailInput);
+    }, 5500);
+}
+
+// Start the looping typewriter animation
+function startTypewriterLoop(emailInput) {
+    // First placeholder
+    typewriterPlaceholder(emailInput, "Oh.. I want to sell it on sellmo too!", () => {
+        // After first placeholder completes, wait 2 seconds then start second
+        setTimeout(() => {
+            typewriterPlaceholder(emailInput, "Enter your email address to join beta now..", () => {
+                // After second placeholder completes, wait 3 seconds then loop back
+                setTimeout(() => {
+                    // Only loop if user hasn't started typing
+                    if (!window.userHasStartedTyping) {
+                        startTypewriterLoop(emailInput);
+                    }
+                }, 3000);
+            });
+        }, 2000);
+    });
+}
+
+// Typewriter effect for placeholder text
+function typewriterPlaceholder(inputElement, text, onComplete) {
+    let currentText = '';
+    let currentIndex = 0;
+    
+    // Clear any existing placeholder
+    inputElement.placeholder = '';
+    
+    // Store the timeout ID so we can cancel it
+    let timeoutId;
+    
+    function typeNextChar() {
+        if (currentIndex < text.length) {
+            currentText += text[currentIndex];
+            inputElement.placeholder = currentText;
+            currentIndex++;
+            
+            // Random typing speed for natural effect (50-80ms)
+            const typingSpeed = Math.random() * 30 + 50;
+            timeoutId = setTimeout(typeNextChar, typingSpeed);
+        } else {
+            // Animation complete
+            if (onComplete) onComplete();
+        }
+    }
+    
+    // Start typing
+    typeNextChar();
+    
+    // Store the timeout ID globally so we can cancel it
+    window.currentTypewriterTimeout = timeoutId;
+}
+
+// Stop typewriter animation
+function stopTypewriterAnimation() {
+    if (window.currentTypewriterTimeout) {
+        clearTimeout(window.currentTypewriterTimeout);
+        window.currentTypewriterTimeout = null;
+    }
 }
 
 // Reset all chat messages to hidden state
@@ -189,20 +262,140 @@ function initFormHandling() {
     
     if (signupForm) {
         signupForm.addEventListener('submit', function(e) {
-            // Don't prevent default - let Netlify handle the submission
-            const email = this.querySelector('input[type="email"]').value;
+            e.preventDefault(); // Prevent default to avoid Netlify's modal
+            
+            const email = this.querySelector('input[type="email"]').value.trim();
             const newsletter = this.querySelector('input[type="checkbox"]').checked;
             
-            // Show success message after a brief delay to allow Netlify submission
-            setTimeout(() => {
-                showSuccessMessage(email, newsletter);
-                
-                // Reset form
-                this.reset();
-                this.querySelector('input[type="checkbox"]').checked = true;
-            }, 100);
+            // Check if empty first (for "Fill out this field" tooltip)
+            if (!email) {
+                // Let the browser show the default "Fill out this field" tooltip
+                this.querySelector('input[type="email"]').reportValidity();
+                return;
+            }
+            
+            // Check if email is valid
+            if (!isValidEmail(email)) {
+                showFormError(this.querySelector('input[type="email"]'), 'Please enter a valid email address');
+                return; // Don't submit invalid form
+            }
+            
+            // Submit form data to Netlify manually
+            submitToNetlify(this, email, newsletter);
+            
+            // Show our custom modal immediately
+            showSuccessMessage(email, newsletter);
+            
+            // Reset form
+            this.reset();
+            this.querySelector('input[type="checkbox"]').checked = true;
         });
+        
+        // Add real-time validation feedback
+        const emailInput = signupForm.querySelector('input[type="email"]');
+        if (emailInput) {
+            emailInput.addEventListener('input', function() {
+                // Set flag that user has started typing
+                window.userHasStartedTyping = true;
+                
+                // Clear error styling as user types
+                this.style.borderColor = '#e5e7eb';
+                this.style.borderWidth = '2px';
+                
+                // Remove error message if it exists
+                const existingError = this.parentNode.querySelector('.error-message');
+                if (existingError) {
+                    existingError.remove();
+                }
+                
+                // Clear browser's default validation state
+                this.setCustomValidity('');
+            });
+        }
     }
+}
+
+// Function to show form validation errors
+function showFormError(inputElement, message) {
+    // Show error styling - only border, no background color change
+    inputElement.style.borderColor = '#ef4444';
+    inputElement.style.borderWidth = '2px';
+    
+    // Remove existing error message if any
+    const existingError = inputElement.parentNode.querySelector('.error-message');
+    if (existingError) {
+        existingError.remove();
+    }
+    
+    // Create and show error message
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.textContent = message;
+    errorDiv.style.cssText = `
+        color: #ef4444;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    `;
+    
+    // Insert error message after the input
+    inputElement.parentNode.insertBefore(errorDiv, inputElement.nextSibling);
+    
+    // Clear error after 3 seconds
+    setTimeout(() => {
+        inputElement.style.borderColor = '#e5e7eb';
+        inputElement.style.borderWidth = '2px';
+        if (errorDiv.parentNode) {
+            errorDiv.remove();
+        }
+    }, 3000);
+}
+
+// Function to submit form data to Netlify without showing their modal
+function submitToNetlify(form, email, newsletter) {
+    // Create a hidden form and submit it in the background
+    const hiddenForm = document.createElement('form');
+    hiddenForm.method = 'POST';
+    hiddenForm.action = form.action || window.location.href;
+    hiddenForm.style.display = 'none';
+    
+    // Add form data
+    const emailInput = document.createElement('input');
+    emailInput.type = 'hidden';
+    emailInput.name = 'email';
+    emailInput.value = email;
+    hiddenForm.appendChild(emailInput);
+    
+    const newsletterInput = document.createElement('input');
+    newsletterInput.type = 'hidden';
+    newsletterInput.name = 'updates';
+    newsletterInput.value = newsletter ? 'on' : 'off';
+    hiddenForm.appendChild(newsletterInput);
+    
+    const formNameInput = document.createElement('input');
+    formNameInput.type = 'hidden';
+    formNameInput.name = 'form-name';
+    formNameInput.value = 'beta-signup';
+    hiddenForm.appendChild(formNameInput);
+    
+    // Submit in background
+    document.body.appendChild(hiddenForm);
+    hiddenForm.submit();
+    document.body.removeChild(hiddenForm);
+}
+
+// Function to submit chat form to Netlify without showing their modal
+function submitChatToNetlify(form, email) {
+    // Create a hidden form and submit it in the background
+    const hiddenForm = document.createElement('input');
+    hiddenForm.type = 'hidden';
+    hiddenForm.name = 'email';
+    hiddenForm.value = email;
+    form.appendChild(hiddenForm);
+    
+    // Submit in background
+    form.submit();
 }
 
 // Initialize header CTA navigation
@@ -680,10 +873,21 @@ function initChatEmailSubmission() {
     const emailInput = document.querySelector('.email-input');
     
     if (chatSubmit && emailInput) {
-        chatSubmit.addEventListener('click', function() {
+        chatSubmit.addEventListener('click', function(e) {
+            e.preventDefault(); // Prevent any default form behavior
+            
             const email = emailInput.value.trim();
-            if (email && isValidEmail(email)) {
-                // Submit the form to Netlify
+            
+            // Check if empty first (for "Fill out this field" tooltip)
+            if (!email) {
+                // Let the browser show the default "Fill out this field" tooltip
+                emailInput.reportValidity();
+                return;
+            }
+            
+            // Check if email is valid
+            if (isValidEmail(email)) {
+                // Submit the form to Netlify in background
                 const chatForm = document.querySelector('form[name="chat-signup"]');
                 if (chatForm) {
                     // Create a hidden input for the email if it doesn't exist
@@ -696,19 +900,16 @@ function initChatEmailSubmission() {
                     }
                     hiddenInput.value = email;
                     
-                    // Submit the form
-                    chatForm.submit();
+                    // Submit the form in background
+                    submitChatToNetlify(chatForm, email);
                 }
                 
                 // Show success message
                 showChatSuccess();
                 emailInput.value = '';
             } else {
-                // Show error state
-                emailInput.style.borderColor = '#ef4444';
-                setTimeout(() => {
-                    emailInput.style.borderColor = '#e5e7eb';
-                }, 2000);
+                // Show comprehensive error state with message
+                showFormError(emailInput, 'Please enter a valid email address');
             }
         });
         
@@ -717,6 +918,28 @@ function initChatEmailSubmission() {
             if (e.key === 'Enter') {
                 chatSubmit.click();
             }
+        });
+        
+        // Add real-time validation feedback for chat input
+        emailInput.addEventListener('input', function() {
+            // Set flag that user has started typing
+            window.userHasStartedTyping = true;
+            
+            // Clear error styling as user types
+            this.style.borderColor = '#e5e7eb';
+            this.style.borderWidth = '2px';
+            
+            // Remove error message if it exists
+            const existingError = this.parentNode.querySelector('.error-message');
+            if (existingError) {
+                existingError.remove();
+            }
+            
+            // Clear browser's default validation state
+            this.setCustomValidity('');
+            
+            // Stop typewriter animation if user starts typing
+            stopTypewriterAnimation();
         });
     }
 }
@@ -737,7 +960,7 @@ function showChatSuccess() {
         emailInput.placeholder = 'Thanks! We\'ll be in touch soon! 🎉';
         emailInput.style.borderColor = '#10b981';
         setTimeout(() => {
-            emailInput.placeholder = 'I want to try.. (Enter email address)';
+            emailInput.placeholder = 'Enter your email address to sell';
             emailInput.style.borderColor = '#e5e7eb';
         }, 3000);
     }

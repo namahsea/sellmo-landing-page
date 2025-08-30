@@ -44,8 +44,9 @@
                 </div>
                 
                 <!-- Chat Input Field - Appears After Chat -->
-                <div class="chat-input-container" id="chatInputContainer" style="opacity: 0; transform: translateY(20px);">
+                <div class="chat-input-container" id="chatInputContainer">
                     <form name="chat-signup" netlify class="chat-input">
+                        <input type="hidden" name="form-name" value="chat-signup">
                         <input type="email" name="email" placeholder="" class="email-input" required>
                         <button type="submit" class="chat-submit">→</button>
                     </form>

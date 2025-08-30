@@ -51,8 +51,7 @@ function startChatCycle() {
     // Reset all messages to hidden state
     resetChatMessages();
     
-    // Show chat input field first (immediate pop)
-    showChatInput();
+    // Chat input field is now always visible - no need to show/hide
     
     // Show first message after 1 second delay
     setTimeout(() => {
@@ -68,10 +67,7 @@ function startChatCycle() {
     setTimeout(() => {
         showChatMessage('chat3', 0);
         
-        // Show input field after last message appears
-        setTimeout(() => {
-            showChatInput();
-        }, 500);
+        // No need to show input field - it's already visible
     }, 5000);
 }
 
@@ -157,12 +153,7 @@ function resetChatMessages() {
         }
     });
     
-    // Reset chat input container
-    const chatInputContainer = document.getElementById('chatInputContainer');
-    if (chatInputContainer) {
-        chatInputContainer.style.opacity = '0';
-        chatInputContainer.style.transform = 'translateY(20px)';
-    }
+    // Chat input container is now always visible - no need to reset
 }
 
 // Hide all messages with animation
@@ -218,15 +209,7 @@ function pushMessagesUp() {
     });
 }
 
-// Show chat input field with animation
-function showChatInput() {
-    const chatInputContainer = document.getElementById('chatInputContainer');
-    if (chatInputContainer) {
-        chatInputContainer.style.opacity = '1';
-        chatInputContainer.style.transform = 'translateY(0)';
-        chatInputContainer.style.transition = 'all 0.6s ease';
-    }
-}
+// Chat input is now always visible - function no longer needed
 
 /* Enable chat input function removed - no longer needed */
 

@@ -10,8 +10,34 @@ exports.handler = async function(event, context) {
     }
 
     try {
-        // Parse the form data
-        const formData = JSON.parse(event.body);
+        // Parse the form data - handle both JSON and form-encoded data
+        let formData;
+        const contentType = event.headers['content-type'] || '';
+        
+        console.log('Content-Type:', contentType);
+        console.log('Body type:', typeof event.body);
+        console.log('Body preview:', event.body ? event.body.substring(0, 100) : 'empty');
+        
+        if (contentType.includes('application/json')) {
+            // Handle JSON data (from JavaScript fetch)
+            try {
+                formData = JSON.parse(event.body);
+            } catch (parseError) {
+                console.error('JSON parse error:', parseError);
+                return {
+                    statusCode: 400,
+                    body: JSON.stringify({ error: 'Invalid JSON data' })
+                };
+            }
+        } else {
+            // Handle form-encoded data (from HTML form submission)
+            const params = new URLSearchParams(event.body);
+            formData = {
+                email: params.get('email'),
+                'form-name': params.get('form-name')
+            };
+        }
+        
         const { email, 'form-name': formName } = formData;
 
         // Validate email

@@ -11,9 +11,25 @@ document.addEventListener('DOMContentLoaded', function() {
     initDelayedChat();
     initChatEmailSubmission();
     
+    // Check for success parameter and show modal
+    checkForSuccess();
+    
     // Add test button for modal debugging (commented out for production)
     // addTestButton();
 });
+
+// Check for success parameter and show modal
+function checkForSuccess() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('success') === 'true') {
+        // Show success modal
+        showSuccessMessage('', true);
+        
+        // Clean up URL (remove success parameter)
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+    }
+}
 
 // Add test button for debugging modal (commented out for production)
 /*

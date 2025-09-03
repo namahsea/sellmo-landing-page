@@ -14,9 +14,7 @@ exports.handler = async function(event, context) {
         let formData;
         const contentType = event.headers['content-type'] || '';
         
-        console.log('Content-Type:', contentType);
-        console.log('Body type:', typeof event.body);
-        console.log('Body preview:', event.body ? event.body.substring(0, 100) : 'empty');
+
         
         if (contentType.includes('application/json')) {
             // Handle JSON data (from JavaScript fetch)
@@ -52,18 +50,13 @@ exports.handler = async function(event, context) {
         const emailResult = await sendWelcomeEmail(email, formName);
 
         if (emailResult.success) {
+            // Redirect to Netlify's success page after sending email
             return {
-                statusCode: 200,
+                statusCode: 302,
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Headers': 'Content-Type',
-                    'Access-Control-Allow-Methods': 'POST, OPTIONS'
-                },
-                body: JSON.stringify({ 
-                    message: 'Welcome email sent successfully!',
-                    email: email
-                })
+                    'Location': '/?success=true',
+                    'Cache-Control': 'no-cache'
+                }
             };
         } else {
             throw new Error(emailResult.error);

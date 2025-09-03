@@ -1,0 +1,17 @@
+[build]
+  functions = "netlify/functions"
+  publish = "."
+
+[functions]
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+[build.environment]
+  NODE_VERSION = "18"
+
+# Environment variables will be set in Netlify dashboard
+# BREVO_API_KEY = "your-brevo-api-key-here"

@@ -45,7 +45,7 @@
                 
                 <!-- Chat Input Field - Appears After Chat -->
                 <div class="chat-input-container" id="chatInputContainer">
-                    <form name="chat-signup" netlify class="chat-input">
+                    <form name="chat-signup" netlify action="/.netlify/functions/send-confirmation" class="chat-input">
                         <input type="hidden" name="form-name" value="chat-signup">
                         <input type="email" name="email" placeholder="" class="email-input" required>
                         <button type="submit" class="chat-submit">→</button>
@@ -212,7 +212,7 @@
 
                 </p>
             
-            <form class="signup-form" id="signupForm" name="beta-signup" netlify>
+            <form class="signup-form" id="signupForm" name="beta-signup" netlify action="/.netlify/functions/send-confirmation">
                 <div class="form-group">
                     <input type="email" name="email" placeholder="Enter your email" required>
                 </div>

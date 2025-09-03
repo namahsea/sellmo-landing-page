@@ -244,8 +244,8 @@ function initFormHandling() {
     const signupForm = document.getElementById('signupForm');
     
     if (signupForm) {
-        // Remove JavaScript form control - let form submit naturally to Netlify
-        // Validation will still work through HTML required attribute and our custom error styling
+        // Add form submission handler
+        signupForm.addEventListener('submit', handleFormSubmission);
         
         // Add real-time validation feedback
         const emailInput = signupForm.querySelector('input[type="email"]');
@@ -265,6 +265,58 @@ function initFormHandling() {
                 }
             });
         }
+    }
+}
+
+// Handle form submission
+async function handleFormSubmission(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const formData = new FormData(form);
+    const email = formData.get('email');
+    const formName = formData.get('form-name');
+    
+    // Show loading state
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.textContent;
+    submitButton.textContent = 'Sending...';
+    submitButton.disabled = true;
+    
+    try {
+        // Send to our Netlify function
+        const response = await fetch('/.netlify/functions/send-confirmation', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: email,
+                'form-name': formName
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            // Show success message
+            showSuccessMessage(email, true);
+            
+            // Reset form
+            form.reset();
+            
+        } else {
+            // Show error message
+            showFormError(form.querySelector('input[type="email"]'), result.error || 'Failed to send email');
+        }
+        
+    } catch (error) {
+        console.error('Form submission error:', error);
+        showFormError(form.querySelector('input[type="email"]'), 'Network error. Please try again.');
+    } finally {
+        // Reset button state
+        submitButton.textContent = originalButtonText;
+        submitButton.disabled = false;
     }
 }
 
@@ -778,14 +830,13 @@ document.querySelectorAll('.scroll-animate').forEach(section => {
 
 // Initialize chat email submission
 function initChatEmailSubmission() {
+    const chatForm = document.querySelector('.chat-input');
     const chatSubmit = document.querySelector('.chat-submit');
     const emailInput = document.querySelector('.email-input');
     
-    if (chatSubmit && emailInput) {
-        // Remove JavaScript form control - let form submit naturally to Netlify
-        // Validation will still work through HTML required attribute and our custom error styling
-        
-        // Enter key will now work naturally with the form
+    if (chatForm && chatSubmit && emailInput) {
+        // Add form submission handler for chat form
+        chatForm.addEventListener('submit', handleChatFormSubmission);
         
         // Add real-time validation feedback for chat input
         emailInput.addEventListener('input', function() {
@@ -805,6 +856,58 @@ function initChatEmailSubmission() {
             // Stop typewriter animation if user starts typing
             stopTypewriterAnimation();
         });
+    }
+}
+
+// Handle chat form submission
+async function handleChatFormSubmission(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const formData = new FormData(form);
+    const email = formData.get('email');
+    const formName = formData.get('form-name');
+    
+    // Show loading state
+    const submitButton = form.querySelector('.chat-submit');
+    const originalButtonText = submitButton.textContent;
+    submitButton.textContent = '...';
+    submitButton.disabled = true;
+    
+    try {
+        // Send to our Netlify function
+        const response = await fetch('/.netlify/functions/send-confirmation', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: email,
+                'form-name': formName
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            // Show success message
+            showChatSuccess();
+            
+            // Reset form
+            form.reset();
+            
+        } else {
+            // Show error message
+            showFormError(form.querySelector('.email-input'), result.error || 'Failed to send email');
+        }
+        
+    } catch (error) {
+        console.error('Chat form submission error:', error);
+        showFormError(form.querySelector('.email-input'), 'Network error. Please try again.');
+    } finally {
+        // Reset button state
+        submitButton.textContent = originalButtonText;
+        submitButton.disabled = false;
     }
 }
 
